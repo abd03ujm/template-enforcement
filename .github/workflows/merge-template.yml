@@ -1,32 +1,47 @@
-name: Pull Request Template Action
-
 on:
+
   pull_request:
-    types: [opened, edited]
+
+    types: [opened, edited, synchronize]
+
+ 
 
 jobs:
-  generate_template:
+
+  validate-pr-template:
+
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
 
-      - name: Create Pull Request Template
+      - name: Check if PR description is missing
+
         run: |
-          if [[ "${{ github.event.action }}" == "opened" || "${{ github.event.action }}" == "edited" ]]; then
-            PR_TEMPLATE=".github/pull_request_template.md"
-            echo "Creating Pull Request Template..."
-            echo "## Pull Request Title" > "$PR_TEMPLATE"
-            echo "" >> "$PR_TEMPLATE"
-            echo "## Description" >> "$PR_TEMPLATE"
-            echo "<!-- Please include a summary of the changes and relevant motivation. -->" >> "$PR_TEMPLATE"
-            echo "" >> "$PR_TEMPLATE"
-            echo "## Related Issue" >> "$PR_TEMPLATE"
-            echo "<!-- Please link any related issues here. -->" >> "$PR_TEMPLATE"
-            echo "" >> "$PR_TEMPLATE"
-            echo "## Checklist" >> "$PR_TEMPLATE"
-            echo "- [ ] Code compiles correctly" >> "$PR_TEMPLATE"
-            echo "- [ ] Tests have been added/updated" >> "$PR_TEMPLATE"
-            echo "- [ ] Documentation has been updated" >> "$PR_TEMPLATE"
+
+          if [ -z "${{ github.event.pull_request.body }}" ]; then
+
+            echo "Error: PR description is missing. Please fill out the template."
+
+            exit 1
+
+          fi
+
+ 
+
+      - name: Check if PR contains default template markers (e.g., <!-- ... -->)
+
+        run: |
+
+          PR_BODY="${{ github.event.pull_request.body }}"
+
+          if echo "$PR_BODY" | grep "<!--"; then
+
+            echo "Error: PR template is not filled. Please complete all sections."
+
+            exit 1
+
+          else
+
+            echo "PR template looks good."
+
           fi
