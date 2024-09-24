@@ -1,0 +1,36 @@
+name: Update Pull Request Template
+
+on:
+  push:
+    branches:
+      - main  # Change this to your default branch
+
+jobs:
+  update_template:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Create or update pull request template
+        run: |
+          TEMPLATE_FILE=".github/PULL_REQUEST_TEMPLATE.md"
+
+          # Define the content for the pull request template
+          echo "## Pull Request\n\n### Description\n\n- [ ] Brief summary of changes\n\n### Motivation and Context\n\n- [ ] Why is this change necessary?\n\n### How Has This Been Tested?\n\n- [ ] Describe the tests that were run to validate these changes\n\n### Checklist:\n\n- [ ] My code follows the style guidelines of this project\n- [ ] I have performed a self-review of my code\n- [ ] I have commented my code where necessary\n- [ ] I have made corresponding changes to the documentation" > $TEMPLATE_FILE
+
+          # Configure Git
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+
+          # Check if the file exists and commit only if there are changes
+          if ! git diff --quiet; then
+            git add $TEMPLATE_FILE
+            git commit -m "Update pull request template"
+            git push
+          else
+            echo "No changes to the pull request template."
+          fi
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
