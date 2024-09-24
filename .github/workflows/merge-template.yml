@@ -25,7 +25,19 @@ jobs:
             exit 1
 
           fi
+          steps:
 
+            - name: Check if PR description is missing
+      
+              run: |
+      
+                if [ -z "${{ github.event.pull_request.body }}" ]; then
+      
+                  echo "Error: PR description is missing. Please fill out the template."
+      
+                  exit 1
+      
+                fi
  
 
       - name: Check if PR contains default template markers (e.g., <!-- ... -->)
